@@ -1,0 +1,30 @@
+export const ENTITY_FIELD_KEYS = {
+  senderName: "sender_name",
+  collectorName: "collector_name",
+  creditorName: "creditor_name",
+  balanceAmount: "balance_amount",
+  balanceCurrency: "balance_currency",
+  accountReference: "account_reference",
+  documentDate: "document_date",
+  responseDeadline: "response_deadline",
+  courtDate: "court_date",
+  contactPhone: "contact_phone",
+  contactEmail: "contact_email",
+  contactAddress: "contact_address",
+  legalAttentionRequired: "legal_attention_required",
+  legalAttentionIndicators: "legal_attention_indicators",
+  classificationConfidence: "classification_confidence",
+} as const;
+
+export const TECHNICAL_FIELD_KEYS = new Set([
+  "extraction_method",
+  "character_count",
+  "word_count",
+  "page_count",
+  "source_mime_type",
+  "heic_converted",
+  "processing_duration_ms",
+  "ocr_language",
+  "extraction_error",
+  ENTITY_FIELD_KEYS.classificationConfidence,
+]);
