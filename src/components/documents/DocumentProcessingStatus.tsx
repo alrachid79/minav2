@@ -19,12 +19,21 @@ type ReviewView = "analysis" | "confirm";
 
 interface DocumentProcessingStatusProps {
   documentId: string;
+  /** When true, analysis was already kicked off after upload — UI only tracks status. */
+  analysisTriggeredExternally?: boolean;
   autoStart?: boolean;
   onReset?: () => void;
 }
 
+function shouldPollProcessingState(
+  processingState: DocumentProcessingSnapshot["processingState"],
+): boolean {
+  return processingState === "uploaded" || processingState === "processing";
+}
+
 export function DocumentProcessingStatus({
   documentId,
+  analysisTriggeredExternally = false,
   autoStart = true,
   onReset,
 }: DocumentProcessingStatusProps) {
@@ -68,7 +77,7 @@ export function DocumentProcessingStatus({
   }, [refreshStatus]);
 
   useEffect(() => {
-    if (!autoStart || hasStarted || !snapshot) {
+    if (!autoStart || hasStarted || !snapshot || analysisTriggeredExternally) {
       return;
     }
 
@@ -80,7 +89,59 @@ export function DocumentProcessingStatus({
       setHasStarted(true);
       runProcessing();
     }
-  }, [autoStart, hasStarted, runProcessing, snapshot]);
+  }, [
+    analysisTriggeredExternally,
+    autoStart,
+    hasStarted,
+    runProcessing,
+    snapshot,
+  ]);
+
+  useEffect(() => {
+    if (!snapshot || !shouldPollProcessingState(snapshot.processingState)) {
+      return;
+    }
+
+    const interval = window.setInterval(() => {
+      void refreshStatus();
+    }, 2500);
+
+    return () => {
+      window.clearInterval(interval);
+    };
+  }, [refreshStatus, snapshot?.processingState]);
+
+  useEffect(() => {
+    if (!analysisTriggeredExternally || hasStarted || !snapshot) {
+      return;
+    }
+
+    if (snapshot.processingState !== "uploaded" || snapshot.latestRun) {
+      return;
+    }
+
+    const timeout = window.setTimeout(() => {
+      void refreshStatus().then((refreshed) => {
+        if (
+          refreshed?.processingState === "uploaded" &&
+          !refreshed.latestRun
+        ) {
+          setHasStarted(true);
+          runProcessing();
+        }
+      });
+    }, 4000);
+
+    return () => {
+      window.clearTimeout(timeout);
+    };
+  }, [
+    analysisTriggeredExternally,
+    hasStarted,
+    refreshStatus,
+    runProcessing,
+    snapshot,
+  ]);
 
   if (!snapshot) {
     return (

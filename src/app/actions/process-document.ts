@@ -134,6 +134,15 @@ export async function processDocument(
     };
   }
 
+  if (latestRun?.status === "completed") {
+    const snapshot = await buildDocumentSnapshot(supabase, typedDocument);
+
+    return {
+      status: "success",
+      snapshot,
+    };
+  }
+
   const nextRunNumber = (latestRun?.run_number ?? 0) + 1;
 
   const { data: pendingRun, error: pendingRunError } = await supabase

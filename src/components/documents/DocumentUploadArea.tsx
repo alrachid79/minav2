@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 
+import { processDocument } from "@/app/actions/process-document";
 import { DocumentProcessingStatus } from "@/components/documents/DocumentProcessingStatus";
 import { ACCEPTED_FILE_INPUT } from "@/lib/documents/constants";
 import {
@@ -42,6 +43,10 @@ export function DocumentUploadArea() {
         file,
         onProgress: setProgress,
       });
+
+      // Start analysis on the server as soon as upload is ready. The server action
+      // continues even if the user navigates away before the status UI mounts.
+      void processDocument(document.id);
 
       setDocumentId(document.id);
       setPhase("processing");
@@ -155,7 +160,7 @@ export function DocumentUploadArea() {
       {phase === "processing" && documentId ? (
         <DocumentProcessingStatus
           documentId={documentId}
-          autoStart
+          analysisTriggeredExternally
           onReset={resetUpload}
         />
       ) : null}
