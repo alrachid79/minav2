@@ -224,10 +224,22 @@ export async function processDocument(
   });
 
   const buffer = Buffer.from(await fileBlob.arrayBuffer());
-  const extraction = await extractDocumentText({
-    buffer,
-    mimeType: typedDocument.mime_type,
-  });
+
+  let extraction: Awaited<ReturnType<typeof extractDocumentText>>;
+
+  try {
+    extraction = await extractDocumentText({
+      buffer,
+      mimeType: typedDocument.mime_type,
+    });
+  } catch (error) {
+    const message =
+      error instanceof Error
+        ? error.message
+        : "Text extraction failed unexpectedly.";
+
+    return failRun(supabase, runId, message, typedDocument);
+  }
 
   if (!extraction.ok) {
     return failRun(supabase, runId, extraction.message, typedDocument);
