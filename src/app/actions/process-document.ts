@@ -87,12 +87,17 @@ async function failRun(
 export async function processDocument(
   documentId: string,
 ): Promise<ProcessDocumentResult> {
+  console.info("[MINA_DIAG] processDocument server action entered", { documentId });
+
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   if (!user) {
+    console.warn("[MINA_DIAG] processDocument exit: no authenticated user", {
+      documentId,
+    });
     return { status: "error", message: "You must be signed in." };
   }
 
@@ -102,6 +107,13 @@ export async function processDocument(
     .eq("id", documentId)
     .eq("user_id", user.id)
     .maybeSingle();
+
+  console.info("[MINA_DIAG] document ownership check result", {
+    documentId,
+    userId: user.id,
+    owned: Boolean(document),
+    documentError: documentError?.message ?? null,
+  });
 
   if (documentError) {
     return { status: "error", message: documentError.message };
@@ -114,6 +126,10 @@ export async function processDocument(
   const typedDocument = document as DocumentRecord;
 
   if (typedDocument.upload_status !== "ready") {
+    console.warn("[MINA_DIAG] processDocument exit: upload_status not ready", {
+      documentId,
+      uploadStatus: typedDocument.upload_status,
+    });
     const snapshot = await buildDocumentSnapshot(supabase, typedDocument);
 
     return {
@@ -145,6 +161,12 @@ export async function processDocument(
 
   const nextRunNumber = (latestRun?.run_number ?? 0) + 1;
 
+  console.info("[MINA_DIAG] analysis run insert attempted", {
+    documentId,
+    userId: user.id,
+    nextRunNumber,
+  });
+
   const { data: pendingRun, error: pendingRunError } = await supabase
     .from("document_analysis_runs")
     .insert({
@@ -157,11 +179,21 @@ export async function processDocument(
     .single();
 
   if (pendingRunError || !pendingRun) {
+    console.error("[MINA_DIAG] analysis run insert failed", {
+      documentId,
+      error: pendingRunError?.message ?? "unknown",
+    });
     return {
       status: "error",
       message: pendingRunError?.message ?? "Failed to queue document processing.",
     };
   }
+
+  console.info("[MINA_DIAG] analysis run insert success", {
+    documentId,
+    runId: pendingRun.id,
+    runNumber: nextRunNumber,
+  });
 
   const runId = pendingRun.id;
 
@@ -170,6 +202,12 @@ export async function processDocument(
     .download(typedDocument.storage_path);
 
   if (downloadError || !fileBlob) {
+    console.error("[MINA_DIAG] storage download failure", {
+      documentId,
+      bucket: typedDocument.storage_bucket,
+      path: typedDocument.storage_path,
+      error: downloadError?.message ?? "missing file blob",
+    });
     return failRun(
       supabase,
       runId,
@@ -177,6 +215,13 @@ export async function processDocument(
       typedDocument,
     );
   }
+
+  console.info("[MINA_DIAG] storage download success", {
+    documentId,
+    bucket: typedDocument.storage_bucket,
+    path: typedDocument.storage_path,
+    byteLength: fileBlob.size,
+  });
 
   const buffer = Buffer.from(await fileBlob.arrayBuffer());
   const extraction = await extractDocumentText({

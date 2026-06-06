@@ -265,6 +265,13 @@ export async function uploadDocument(input: {
 
   input.onProgress(100);
 
+  console.info("[MINA_DIAG] uploadDocument success", {
+    documentId: readyDocument.id,
+    userId: readyDocument.user_id,
+    uploadStatus: readyDocument.upload_status,
+    storagePath: readyDocument.storage_path,
+  });
+
   return readyDocument as DocumentRecord;
 }
 

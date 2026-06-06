@@ -46,7 +46,16 @@ export function DocumentUploadArea() {
 
       // Start analysis on the server as soon as upload is ready. The server action
       // continues even if the user navigates away before the status UI mounts.
-      void processDocument(document.id);
+      console.info("[MINA_DIAG] processDocument client call attempted", {
+        documentId: document.id,
+        uploadStatus: document.upload_status,
+      });
+      void processDocument(document.id).catch((error: unknown) => {
+        console.error("[MINA_DIAG] processDocument client rejection", {
+          documentId: document.id,
+          error,
+        });
+      });
 
       setDocumentId(document.id);
       setPhase("processing");
