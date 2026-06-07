@@ -1,3 +1,5 @@
+import type { EntityConfidenceMap } from "@/lib/documents/intelligence/entity-confidence";
+
 export const DOCUMENT_TYPES = [
   "collection_letter",
   "settlement_offer",
@@ -66,6 +68,7 @@ export interface DocumentAnalysisCards {
     senderName: string | null;
     collectorName: string | null;
     creditorName: string | null;
+    accountReference: string | null;
     contactPhone: string | null;
     contactEmail: string | null;
     contactAddress: string | null;
@@ -83,6 +86,7 @@ export interface DocumentAnalysisCards {
 export interface DocumentIntelligenceResult {
   classification: ClassificationResult;
   entities: ExtractedEntities;
+  entityConfidences: EntityConfidenceMap;
   legalAttention: LegalAttentionResult;
   cards: DocumentAnalysisCards;
   plainLanguageSummary: string;

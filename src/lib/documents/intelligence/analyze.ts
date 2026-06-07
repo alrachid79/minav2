@@ -12,8 +12,16 @@ export function analyzeDocumentIntelligence(
 ): DocumentIntelligenceResult {
   const normalizedText = normalizeDocumentText(rawText);
   const classification = classifyDocument(normalizedText);
-  const entities = extractEntities(rawText);
+  const { entities, confidences: entityConfidences } = extractEntities(rawText);
   const legalAttention = detectLegalAttention(normalizedText);
+
+  console.info("[MINA_DIAG] extracted_text sample", {
+    charLength: rawText.length,
+    lineCount: rawText.split("\n").length,
+    preview: rawText.slice(0, 500),
+    entityHits: Object.entries(entities).filter(([, value]) => Boolean(value)).length,
+  });
+
   const cards = buildAnalysisCards({ classification, entities, legalAttention });
   const recommendedActions = [
     cards.recommendedNextStep,
@@ -23,6 +31,7 @@ export function analyzeDocumentIntelligence(
   return {
     classification,
     entities,
+    entityConfidences,
     legalAttention,
     cards,
     plainLanguageSummary: cards.documentSummary,

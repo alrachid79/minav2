@@ -268,6 +268,7 @@ export function DocumentProcessingStatus({
       {processingState === "analyzed" && cards ? (
         <DocumentAnalysisCardsView
           cards={cards}
+          extractedFields={snapshot.extractedFields}
           legalAttentionRequired={legalAttentionRequired}
           documentTypeLabel={documentTypeLabel}
         />

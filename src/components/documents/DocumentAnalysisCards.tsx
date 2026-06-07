@@ -1,25 +1,63 @@
 import { ResultCard } from "@/components/onboarding/ResultCard";
-import type { DocumentAnalysisCards } from "@/types/documents";
+import { ENTITY_REVIEW_CONFIDENCE_THRESHOLD } from "@/lib/documents/intelligence/entity-confidence";
+import type { DocumentAnalysisCards, DocumentExtractedField } from "@/types/documents";
 
 interface DocumentAnalysisCardsProps {
   cards: DocumentAnalysisCards;
+  extractedFields?: DocumentExtractedField[];
   legalAttentionRequired: boolean;
   documentTypeLabel?: string | null;
 }
 
-function FieldRow({ label, value }: { label: string; value: string | null }) {
+function displayFieldValue(
+  fieldKey: string,
+  value: string | null,
+  extractedFields?: DocumentExtractedField[],
+): string {
+  if (!value) {
+    return "Not found";
+  }
+
+  const confidence = extractedFields?.find((field) => field.field_key === fieldKey)
+    ?.confidence_score;
+
+  if (
+    confidence !== null &&
+    confidence !== undefined &&
+    confidence < ENTITY_REVIEW_CONFIDENCE_THRESHOLD
+  ) {
+    return "Needs review";
+  }
+
+  return value;
+}
+
+function FieldRow({
+  label,
+  fieldKey,
+  value,
+  extractedFields,
+}: {
+  label: string;
+  fieldKey: string;
+  value: string | null;
+  extractedFields?: DocumentExtractedField[];
+}) {
   return (
     <div className="flex flex-col gap-0.5 border-b border-[#0F172A]/6 py-2 last:border-b-0">
       <dt className="text-xs font-medium uppercase tracking-wide text-[#6B7280]">
         {label}
       </dt>
-      <dd className="text-[15px] text-[#0F172A]">{value ?? "Not found"}</dd>
+      <dd className="text-[15px] text-[#0F172A]">
+        {displayFieldValue(fieldKey, value, extractedFields)}
+      </dd>
     </div>
   );
 }
 
 export function DocumentAnalysisCardsView({
   cards,
+  extractedFields,
   legalAttentionRequired,
   documentTypeLabel,
 }: DocumentAnalysisCardsProps) {
@@ -55,23 +93,71 @@ export function DocumentAnalysisCardsView({
 
       <ResultCard title="Who Sent It" accent="teal">
         <dl>
-          <FieldRow label="Sender" value={cards.whoSentIt.senderName} />
-          <FieldRow label="Collector" value={cards.whoSentIt.collectorName} />
-          <FieldRow label="Creditor" value={cards.whoSentIt.creditorName} />
-          <FieldRow label="Phone" value={cards.whoSentIt.contactPhone} />
-          <FieldRow label="Email" value={cards.whoSentIt.contactEmail} />
-          <FieldRow label="Address" value={cards.whoSentIt.contactAddress} />
+          <FieldRow
+            label="Sender"
+            fieldKey="sender_name"
+            value={cards.whoSentIt.senderName}
+            extractedFields={extractedFields}
+          />
+          <FieldRow
+            label="Collector"
+            fieldKey="collector_name"
+            value={cards.whoSentIt.collectorName}
+            extractedFields={extractedFields}
+          />
+          <FieldRow
+            label="Creditor"
+            fieldKey="creditor_name"
+            value={cards.whoSentIt.creditorName}
+            extractedFields={extractedFields}
+          />
+          <FieldRow
+            label="Account reference"
+            fieldKey="account_reference"
+            value={cards.whoSentIt.accountReference}
+            extractedFields={extractedFields}
+          />
+          <FieldRow
+            label="Phone"
+            fieldKey="contact_phone"
+            value={cards.whoSentIt.contactPhone}
+            extractedFields={extractedFields}
+          />
+          <FieldRow
+            label="Email"
+            fieldKey="contact_email"
+            value={cards.whoSentIt.contactEmail}
+            extractedFields={extractedFields}
+          />
+          <FieldRow
+            label="Address"
+            fieldKey="contact_address"
+            value={cards.whoSentIt.contactAddress}
+            extractedFields={extractedFields}
+          />
         </dl>
       </ResultCard>
 
       <ResultCard title="Important Dates" accent="gold">
         <dl>
-          <FieldRow label="Document date" value={cards.importantDates.documentDate} />
+          <FieldRow
+            label="Document date"
+            fieldKey="document_date"
+            value={cards.importantDates.documentDate}
+            extractedFields={extractedFields}
+          />
           <FieldRow
             label="Response deadline"
+            fieldKey="response_deadline"
             value={cards.importantDates.responseDeadline}
+            extractedFields={extractedFields}
           />
-          <FieldRow label="Court date" value={cards.importantDates.courtDate} />
+          <FieldRow
+            label="Court date"
+            fieldKey="court_date"
+            value={cards.importantDates.courtDate}
+            extractedFields={extractedFields}
+          />
         </dl>
       </ResultCard>
 

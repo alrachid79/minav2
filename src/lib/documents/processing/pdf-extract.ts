@@ -36,7 +36,12 @@ export async function extractTextFromPdf(buffer: Buffer): Promise<PdfExtractionR
       );
     }
 
-    const text = data.text.replace(/\s+/g, " ").trim();
+    const text = data.text
+      .replace(/\r\n/g, "\n")
+      .split("\n")
+      .map((line) => line.replace(/[ \t]+/g, " ").trim())
+      .filter((line) => line.length > 0)
+      .join("\n");
 
     return {
       text,

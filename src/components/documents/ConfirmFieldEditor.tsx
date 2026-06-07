@@ -38,7 +38,9 @@ export function ConfirmFieldEditor({
         type="text"
         value={unknown ? "" : value}
         disabled={unknown}
-        placeholder={unknown ? "Marked as unknown" : "Not found — add a value"}
+        placeholder={
+          unknown ? "Marked as unknown" : "Not found or needs review — add a value"
+        }
         onChange={(event) => onValueChange(event.target.value)}
         className="mt-3 min-h-[44px] w-full rounded-lg border border-[#0F172A]/12 bg-white px-3 py-2 text-sm text-[#0F172A] placeholder:text-[#6B7280] disabled:cursor-not-allowed disabled:bg-[#F1F5F9] disabled:text-[#6B7280]"
       />

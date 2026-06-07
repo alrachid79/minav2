@@ -27,24 +27,74 @@ export function buildIntelligenceFieldInserts(
 ): EntityFieldInsert[] {
   const { entities, classification, legalAttention } = intelligence;
 
+  const confidence = intelligence.entityConfidences;
+
   const fields = [
     field(
       ENTITY_FIELD_KEYS.classificationConfidence,
       String(classification.confidence.toFixed(2)),
       classification.confidence,
     ),
-    field(ENTITY_FIELD_KEYS.senderName, entities.senderName, 0.65),
-    field(ENTITY_FIELD_KEYS.collectorName, entities.collectorName, 0.7),
-    field(ENTITY_FIELD_KEYS.creditorName, entities.creditorName, 0.7),
-    field(ENTITY_FIELD_KEYS.balanceAmount, entities.balanceAmount, 0.75),
-    field(ENTITY_FIELD_KEYS.balanceCurrency, entities.balanceCurrency, 0.9),
-    field(ENTITY_FIELD_KEYS.accountReference, entities.accountReference, 0.72),
-    field(ENTITY_FIELD_KEYS.documentDate, entities.documentDate, 0.68),
-    field(ENTITY_FIELD_KEYS.responseDeadline, entities.responseDeadline, 0.7),
-    field(ENTITY_FIELD_KEYS.courtDate, entities.courtDate, 0.72),
-    field(ENTITY_FIELD_KEYS.contactPhone, entities.contactPhone, 0.85),
-    field(ENTITY_FIELD_KEYS.contactEmail, entities.contactEmail, 0.88),
-    field(ENTITY_FIELD_KEYS.contactAddress, entities.contactAddress, 0.6),
+    field(
+      ENTITY_FIELD_KEYS.senderName,
+      entities.senderName,
+      confidence.senderName,
+    ),
+    field(
+      ENTITY_FIELD_KEYS.collectorName,
+      entities.collectorName,
+      confidence.collectorName,
+    ),
+    field(
+      ENTITY_FIELD_KEYS.creditorName,
+      entities.creditorName,
+      confidence.creditorName,
+    ),
+    field(
+      ENTITY_FIELD_KEYS.balanceAmount,
+      entities.balanceAmount,
+      confidence.balanceAmount,
+    ),
+    field(
+      ENTITY_FIELD_KEYS.balanceCurrency,
+      entities.balanceCurrency,
+      confidence.balanceCurrency,
+    ),
+    field(
+      ENTITY_FIELD_KEYS.accountReference,
+      entities.accountReference,
+      confidence.accountReference,
+    ),
+    field(
+      ENTITY_FIELD_KEYS.documentDate,
+      entities.documentDate,
+      confidence.documentDate,
+    ),
+    field(
+      ENTITY_FIELD_KEYS.responseDeadline,
+      entities.responseDeadline,
+      confidence.responseDeadline,
+    ),
+    field(
+      ENTITY_FIELD_KEYS.courtDate,
+      entities.courtDate,
+      confidence.courtDate,
+    ),
+    field(
+      ENTITY_FIELD_KEYS.contactPhone,
+      entities.contactPhone,
+      confidence.contactPhone,
+    ),
+    field(
+      ENTITY_FIELD_KEYS.contactEmail,
+      entities.contactEmail,
+      confidence.contactEmail,
+    ),
+    field(
+      ENTITY_FIELD_KEYS.contactAddress,
+      entities.contactAddress,
+      confidence.contactAddress,
+    ),
     {
       field_key: ENTITY_FIELD_KEYS.legalAttentionRequired,
       field_value: legalAttention.legalAttentionRequired ? "true" : "false",

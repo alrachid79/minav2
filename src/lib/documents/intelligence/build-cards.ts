@@ -217,6 +217,7 @@ export function buildAnalysisCards(input: {
       senderName: input.entities.senderName,
       collectorName: input.entities.collectorName,
       creditorName: input.entities.creditorName,
+      accountReference: input.entities.accountReference,
       contactPhone: input.entities.contactPhone,
       contactEmail: input.entities.contactEmail,
       contactAddress: input.entities.contactAddress,

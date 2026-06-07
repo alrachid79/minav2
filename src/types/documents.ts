@@ -78,6 +78,7 @@ export interface DocumentAnalysisCards {
     senderName: string | null;
     collectorName: string | null;
     creditorName: string | null;
+    accountReference: string | null;
     contactPhone: string | null;
     contactEmail: string | null;
     contactAddress: string | null;
