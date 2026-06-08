@@ -17,6 +17,8 @@ function recommendationHref(targetFeature: string): string | null {
       return "/documents";
     case "letter_generator":
       return "/letters";
+    case "live_call":
+      return "/live-call";
     default:
       return null;
   }
