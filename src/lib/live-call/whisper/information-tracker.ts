@@ -48,8 +48,8 @@ export function listMissingTrackerFields(tracker: WhisperInformationTracker): st
   if (!tracker.collector_name) {
     missing.push("collector_name");
   }
-  if (!tracker.creditor_name) {
-    missing.push("creditor_name");
+  if (!tracker.account_reference && !tracker.balance) {
+    missing.push("account_reference");
   }
   if (!tracker.balance) {
     missing.push("balance");
@@ -62,9 +62,6 @@ export function listMissingTrackerFields(tracker: WhisperInformationTracker): st
   }
   if (!tracker.deadline) {
     missing.push("deadline");
-  }
-  if (!tracker.account_reference) {
-    missing.push("account_reference");
   }
   if (!tracker.written_offer_received) {
     missing.push("written_offer_received");

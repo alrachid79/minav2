@@ -56,6 +56,16 @@ function extractBareSettlementAmount(text: string): string | null {
 }
 
 function extractCollectorName(normalized: string): string | null {
+  const companyFromIntro = normalized.match(
+    /(?:my name is|this is) [a-z][a-z\s.'-]{0,40}? from ([a-z][a-z0-9\s.'&-]{1,50})/,
+  );
+  if (companyFromIntro?.[1]) {
+    return companyFromIntro[1]
+      .trim()
+      .replace(/\.$/, "")
+      .replace(/\b\w/g, (char) => char.toUpperCase());
+  }
+
   const patterns = [
     /this is ([a-z][a-z\s.'-]{1,40}?)(?: from| with| at|$)/,
     /my name is ([a-z][a-z\s.'-]{1,40}?)(?: from| with| at|$)/,
@@ -181,17 +191,21 @@ export function parseCallInput(text: string): ParsedCallInput {
   const balanceOffer = extractBalanceAndOffer(normalized, dollarAmounts);
   const monthlyPaymentAmount = extractMonthlyPaymentAmount(text, normalized);
 
-  const settlementOfferAmount =
-    balanceOffer.settlementOfferAmount ?? bareAmount ?? dollarAmounts.at(-1) ?? null;
-
-  const balanceAmount = balanceOffer.balanceAmount;
-
   const settlementMention =
     normalized.includes("settlement") ||
     normalized.includes("settle") ||
     normalized.includes("lump sum") ||
     Boolean(bareAmount) ||
     /offer\s+\d/.test(normalized);
+
+  const settlementOfferAmount =
+    balanceOffer.settlementOfferAmount ??
+    bareAmount ??
+    (settlementMention && dollarAmounts.length > 0 ? dollarAmounts.at(-1)! : null);
+
+  const balanceAmount =
+    balanceOffer.balanceAmount ??
+    (normalized.includes("balance") && dollarAmounts[0] ? dollarAmounts[0] : null);
 
   return {
     normalized,

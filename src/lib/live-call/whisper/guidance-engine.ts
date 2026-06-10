@@ -1,9 +1,9 @@
 import {
   createEmptyTracker,
   listCapturedTrackerFields,
-  listMissingTrackerFields,
   type WhisperInformationTracker,
 } from "@/lib/live-call/whisper/information-tracker";
+import { listMissingObjectivesInPriorityOrder } from "@/lib/live-call/whisper/conversation-state-engine";
 import type { WhisperFinancialProfile } from "@/lib/live-call/whisper/financial-profile";
 import { emptyProfile } from "@/lib/live-call/whisper/financial-profile";
 import { parseCallInput } from "@/lib/live-call/whisper/parse-input";
@@ -64,7 +64,7 @@ export function generateWhisperGuidance(input: GenerateWhisperGuidanceInput): Li
   tracker = markResponseAsked(tracker, sayNow);
 
   const captured = listCapturedTrackerFields(tracker);
-  const missing = listMissingTrackerFields(tracker).map((field) => {
+  const missing = listMissingObjectivesInPriorityOrder(tracker).map((field) => {
     const labels: Record<string, string> = {
       collector_name: "Collector name",
       creditor_name: "Creditor name",

@@ -46,7 +46,7 @@ export function detectIntelligenceStage(input: {
     return "ACCOUNT_DISCUSSION";
   }
 
-  if (turnNumber <= 1 || parsed.identityMention || !tracker.collector_name) {
+  if (!tracker.collector_name && (turnNumber <= 1 || parsed.identityMention)) {
     return "IDENTITY_VERIFICATION";
   }
 
