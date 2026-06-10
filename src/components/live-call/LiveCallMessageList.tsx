@@ -1,7 +1,8 @@
 import { LiveCallMinaGuidanceCard } from "@/components/live-call/LiveCallMinaGuidanceCard";
+import { isLegacyGuidance } from "@/lib/live-call/generate-guidance";
 import type {
+  LegacyLiveCallMinaGuidanceContent,
   LiveCallMessageRecord,
-  LiveCallMinaGuidanceContent,
   LiveCallUserMessageContent,
 } from "@/types/live-call";
 
@@ -9,10 +10,10 @@ interface LiveCallMessageListProps {
   messages: LiveCallMessageRecord[];
 }
 
-function isMinaGuidance(
-  content: LiveCallUserMessageContent | LiveCallMinaGuidanceContent,
-): content is LiveCallMinaGuidanceContent {
-  return "suggested_response" in content;
+function isLegacyMinaMessage(
+  content: LiveCallMessageRecord["content"],
+): content is LegacyLiveCallMinaGuidanceContent {
+  return isLegacyGuidance(content);
 }
 
 export function LiveCallMessageList({ messages }: LiveCallMessageListProps) {
@@ -52,7 +53,7 @@ export function LiveCallMessageList({ messages }: LiveCallMessageListProps) {
           );
         }
 
-        if (isMinaGuidance(message.content)) {
+        if (isLegacyMinaMessage(message.content)) {
           return <LiveCallMinaGuidanceCard key={message.id} guidance={message.content} />;
         }
 

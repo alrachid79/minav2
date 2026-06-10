@@ -24,7 +24,33 @@ export interface LiveCallUserMessageContent {
   notes: string | null;
 }
 
+export interface WhisperRealityCheckPayload {
+  verdict: string;
+  offer_amount: string | null;
+  monthly_amount: string | null;
+  available_amount: string | null;
+  available_label: "Available" | "Flexibility" | null;
+  classification:
+    | "likely_manageable"
+    | "needs_review"
+    | "may_create_financial_pressure"
+    | "financial_profile_incomplete";
+}
+
 export interface LiveCallMinaGuidanceContent {
+  format: "whisper_v1" | "whisper_v2";
+  stage: string;
+  stage_code?: import("@/lib/live-call/whisper/stages").WhisperIntelligenceStage;
+  say_now: string;
+  captured: string[];
+  missing: string[];
+  pressure: "Low" | "Medium" | "High";
+  reality_check?: WhisperRealityCheckPayload;
+  tracker?: import("@/lib/live-call/whisper/information-tracker").WhisperInformationTracker;
+}
+
+/** @deprecated Legacy coaching payload — may exist on older sessions */
+export interface LegacyLiveCallMinaGuidanceContent {
   suggested_response: string;
   clarifying_questions: string[];
   things_to_understand: string[];
@@ -40,7 +66,7 @@ export interface LiveCallMessageRecord {
   sequence_number: number;
   role: LiveCallMessageRole;
   message_type: LiveCallMessageType;
-  content: LiveCallUserMessageContent | LiveCallMinaGuidanceContent;
+  content: LiveCallUserMessageContent | LiveCallMinaGuidanceContent | LegacyLiveCallMinaGuidanceContent;
   created_at: string;
 }
 

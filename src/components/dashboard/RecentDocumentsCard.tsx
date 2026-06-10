@@ -5,6 +5,7 @@ import {
   DashboardEmptyState,
   formatDashboardDate,
 } from "@/components/dashboard/DashboardCard";
+import { MINA_GETTING_STARTED_COPY } from "@/lib/ui/empty-state-copy";
 import type { DashboardRecentDocumentSnapshot } from "@/types/dashboard";
 
 interface RecentDocumentsCardProps {
@@ -25,7 +26,7 @@ export function RecentDocumentsCard({
       className="h-full"
     >
       {documents.length === 0 ? (
-        <DashboardEmptyState message="No documents uploaded yet." />
+        <DashboardEmptyState message={MINA_GETTING_STARTED_COPY} />
       ) : (
         <ul className="space-y-2.5">
           {documents.map((document) => (

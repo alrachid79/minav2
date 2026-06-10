@@ -37,7 +37,7 @@ export function RecommendationsCard({
         variant="default"
         className="h-full"
       >
-        <DashboardEmptyState message="Recommendations will appear here as Mina learns from your confirmed documents." />
+        <DashboardEmptyState message="Recommendations will appear as Mina learns from your letters and calls." />
       </DashboardCard>
     );
   }

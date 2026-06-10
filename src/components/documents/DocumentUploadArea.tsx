@@ -5,6 +5,7 @@ import { useRef, useState } from "react";
 import { processDocument } from "@/app/actions/process-document";
 import { DocumentProcessingStatus } from "@/components/documents/DocumentProcessingStatus";
 import { ACCEPTED_FILE_INPUT } from "@/lib/documents/constants";
+import { MINA_GETTING_STARTED_COPY } from "@/lib/ui/empty-state-copy";
 import {
   uploadDocument,
   validateDocumentFile,
@@ -61,10 +62,15 @@ export function DocumentUploadArea() {
       setPhase("processing");
     } catch (uploadError) {
       setPhase("error");
+      const rawMessage =
+        uploadError instanceof Error ? uploadError.message : "Something went wrong during upload.";
       setError(
-        uploadError instanceof Error
-          ? uploadError.message
-          : "Something went wrong during upload.",
+        rawMessage.toLowerCase().includes("network") ||
+          rawMessage.toLowerCase().includes("fetch")
+          ? "Upload failed — check your connection and try again."
+          : rawMessage.toLowerCase().includes("storage")
+            ? "We couldn't save your file. Try a smaller PDF or image."
+            : "We couldn't upload that file. Try again or choose a different format.",
       );
     }
   }
@@ -126,8 +132,7 @@ export function DocumentUploadArea() {
             Upload a document
           </h2>
           <p className="mx-auto mt-2 max-w-[36ch] text-sm leading-relaxed text-[#6B7280]">
-            Drag and drop a PDF, JPG, PNG, or HEIC file — or choose from your
-            device. Maximum 25 MB.
+            {MINA_GETTING_STARTED_COPY} Upload a PDF, JPG, PNG, or HEIC up to 25 MB.
           </p>
           <button
             type="button"

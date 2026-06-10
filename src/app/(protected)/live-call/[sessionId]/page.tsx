@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 
 import { getLiveCallSession } from "@/app/actions/live-call";
-import { LiveCallConversation } from "@/components/live-call/LiveCallConversation";
+import { WhisperModeConversation } from "@/components/live-call/WhisperModeConversation";
 
 interface LiveCallSessionPageProps {
   params: Promise<{ sessionId: string }>;
@@ -15,5 +15,5 @@ export default async function LiveCallSessionPage({ params }: LiveCallSessionPag
     notFound();
   }
 
-  return <LiveCallConversation snapshot={snapshot} />;
+  return <WhisperModeConversation snapshot={snapshot} />;
 }

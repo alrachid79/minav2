@@ -2,6 +2,8 @@
 
 import { z } from "zod";
 
+import { logProductEvent } from "@/lib/analytics/log-product-event";
+import { PRODUCT_EVENTS } from "@/lib/analytics/product-events";
 import { buildLetterGenerationSourceData } from "@/lib/letters/build-source-data";
 import {
   generateLetterContent,
@@ -85,7 +87,10 @@ export async function generateLetter(input: {
   }
 
   if (!profile) {
-    return { status: "error", message: "Profile not found." };
+    return {
+      status: "error",
+      message: "Your profile isn't ready yet. Finish onboarding or refresh the page.",
+    };
   }
 
   let document:
@@ -265,6 +270,12 @@ export async function generateLetter(input: {
   if (versionError) {
     return { status: "error", message: versionError.message };
   }
+
+  await logProductEvent(supabase, {
+    userId: user.id,
+    eventType: PRODUCT_EVENTS.LETTER_GENERATED,
+    payload: { letterId: letter.id, letterType: parsed.data.letterType },
+  });
 
   return {
     status: "success",

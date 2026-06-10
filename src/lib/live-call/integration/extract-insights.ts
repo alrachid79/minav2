@@ -5,11 +5,11 @@ import {
   detectCallPressure,
   normalizeCallInput,
 } from "@/lib/live-call/detect-pressure";
+import { isLegacyGuidance, isWhisperGuidance } from "@/lib/live-call/generate-guidance";
 import type { LiveCallInsightKey } from "@/lib/live-call/integration/constants";
 import { LIVE_CALL_INSIGHT_KEYS } from "@/lib/live-call/integration/constants";
 import type {
   LiveCallMessageRecord,
-  LiveCallMinaGuidanceContent,
   LiveCallUserMessageContent,
 } from "@/types/live-call";
 
@@ -59,12 +59,6 @@ const INFORMATION_REQUEST_PHRASES = [
   "send me",
 ];
 
-function isMinaGuidance(
-  content: LiveCallUserMessageContent | LiveCallMinaGuidanceContent,
-): content is LiveCallMinaGuidanceContent {
-  return "suggested_response" in content;
-}
-
 function includesAny(text: string, phrases: string[]): boolean {
   return phrases.some((phrase) => text.includes(phrase));
 }
@@ -93,7 +87,14 @@ export function collectLiveCallSourceText(input: {
       continue;
     }
 
-    if (isMinaGuidance(message.content)) {
+    if (isWhisperGuidance(message.content)) {
+      parts.push(message.content.stage);
+      parts.push(message.content.say_now);
+      parts.push(...message.content.captured);
+      continue;
+    }
+
+    if (isLegacyGuidance(message.content)) {
       parts.push(message.content.what_is_happening);
       if (message.content.pressure_tactic) {
         parts.push(message.content.pressure_tactic);

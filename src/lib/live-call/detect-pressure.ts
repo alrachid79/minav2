@@ -1,8 +1,6 @@
-import type { LiveCallMinaGuidanceContent } from "@/types/live-call";
-
 export interface PressureDetectionResult {
   tactic: string | null;
-  riskLevel: LiveCallMinaGuidanceContent["risk_level"];
+  riskLevel: "low" | "elevated" | "legal_attention";
   legalLanguage: boolean;
   urgencyLanguage: boolean;
   paymentDemand: boolean;

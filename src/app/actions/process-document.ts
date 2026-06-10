@@ -1,5 +1,7 @@
 "use server";
 
+import { logProductEvent } from "@/lib/analytics/log-product-event";
+import { PRODUCT_EVENTS } from "@/lib/analytics/product-events";
 import { buildDocumentSnapshot } from "@/app/actions/get-document-processing";
 import { analyzeDocumentIntelligence } from "@/lib/documents/intelligence/analyze";
 import { buildIntelligenceFieldInserts } from "@/lib/documents/intelligence/persist-fields";
@@ -194,6 +196,14 @@ export async function processDocument(
     runId: pendingRun.id,
     runNumber: nextRunNumber,
   });
+
+  if (nextRunNumber === 1) {
+    await logProductEvent(supabase, {
+      userId: user.id,
+      eventType: PRODUCT_EVENTS.DOCUMENT_UPLOADED,
+      payload: { documentId, filename: typedDocument.original_filename },
+    });
+  }
 
   const runId = pendingRun.id;
 

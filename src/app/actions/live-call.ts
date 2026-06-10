@@ -2,8 +2,12 @@
 
 import { z } from "zod";
 
+import { logProductEvent } from "@/lib/analytics/log-product-event";
+import { PRODUCT_EVENTS } from "@/lib/analytics/product-events";
 import { buildLiveCallSummary } from "@/lib/live-call/build-summary";
 import { generateLiveCallGuidance } from "@/lib/live-call/generate-guidance";
+import { loadUserFinancialProfile } from "@/lib/live-call/whisper/load-financial-profile";
+import { extractTrackerFromGuidance } from "@/lib/live-call/whisper/guidance-engine";
 import {
   integrateLiveCallSessionCompleted,
   integrateLiveCallSessionStarted,
@@ -35,9 +39,7 @@ const submitInputSchema = z.object({
   notes: z.string().max(2000).optional(),
 });
 
-function parseMessageContent(raw: unknown): LiveCallUserMessageContent | LiveCallMinaGuidanceContent {
-  return raw as LiveCallUserMessageContent | LiveCallMinaGuidanceContent;
-}
+import { parseMessageContent } from "@/lib/live-call/parse-message-content";
 
 async function getOwnedSession(
   supabase: Awaited<ReturnType<typeof createClient>>,
@@ -127,6 +129,12 @@ export async function createLiveCallSession(input?: {
     // Best-effort integration; session creation still succeeds.
   }
 
+  await logProductEvent(supabase, {
+    userId: user.id,
+    eventType: PRODUCT_EVENTS.WHISPER_MODE_STARTED,
+    payload: { sessionId: data.id },
+  });
+
   return { status: "success", sessionId: data.id };
 }
 
@@ -193,10 +201,27 @@ export async function submitLiveCallInput(input: {
     return { status: "error", message: userMessageError.message };
   }
 
+  const { data: rawMessages, error: messagesError } = await supabase
+    .from("live_call_messages")
+    .select("id, sequence_number, role, message_type, content, created_at")
+    .eq("live_call_session_id", session.id)
+    .order("sequence_number", { ascending: true });
+
+  if (messagesError) {
+    return { status: "error", message: messagesError.message };
+  }
+
+  const priorMinaMessages = (rawMessages ?? []).filter((message) => message.role === "mina");
+  const lastMinaContent = priorMinaMessages.at(-1)?.content;
+  const priorTracker = extractTrackerFromGuidance(lastMinaContent);
+  const financialProfile = await loadUserFinancialProfile(supabase, user.id);
+
   const guidance = generateLiveCallGuidance({
     collectorSaid: userContent.text,
     userNotes: userContent.notes,
     turnNumber,
+    priorTracker,
+    financialProfile,
   });
 
   const minaSequence = userSequence + 1;
@@ -360,6 +385,12 @@ export async function endLiveCallSession(input: {
   } catch {
     // Best-effort integration; session end still succeeds.
   }
+
+  await logProductEvent(supabase, {
+    userId: user.id,
+    eventType: PRODUCT_EVENTS.WHISPER_MODE_COMPLETED,
+    payload: { sessionId: session.id, debtSituationId: session.debt_situation_id },
+  });
 
   return { status: "success", summaryId };
 }

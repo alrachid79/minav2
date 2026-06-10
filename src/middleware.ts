@@ -48,7 +48,11 @@ export async function middleware(request: NextRequest) {
           ? "/letters"
           : request.nextUrl.pathname.startsWith("/live-call")
             ? request.nextUrl.pathname
-            : "/dashboard",
+            : request.nextUrl.pathname.startsWith("/situations")
+              ? request.nextUrl.pathname
+              : request.nextUrl.pathname.startsWith("/recovery")
+                ? request.nextUrl.pathname
+                : "/dashboard",
     );
     return NextResponse.redirect(loginUrl);
   }
@@ -57,5 +61,12 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/documents/:path*", "/letters/:path*", "/live-call/:path*"],
+  matcher: [
+    "/dashboard/:path*",
+    "/documents/:path*",
+    "/letters/:path*",
+    "/live-call/:path*",
+    "/situations/:path*",
+    "/recovery/:path*",
+  ],
 };

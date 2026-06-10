@@ -28,7 +28,7 @@ export function RecentTimelineCard({ events, compact = false }: RecentTimelineCa
       className="h-full"
     >
       {events.length === 0 ? (
-        <DashboardEmptyState message="Timeline activity will appear after documents are integrated." />
+        <DashboardEmptyState message="Timeline activity will appear as you review letters and take calls." />
       ) : (
         <ul className="relative space-y-0">
           {events.map((event, index) => (

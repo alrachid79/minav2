@@ -1,8 +1,8 @@
 import { LIVE_CALL_EDUCATIONAL_DISCLAIMER } from "@/lib/live-call/constants";
-import type { LiveCallMinaGuidanceContent } from "@/types/live-call";
+import type { LegacyLiveCallMinaGuidanceContent } from "@/types/live-call";
 
 interface LiveCallMinaGuidanceCardProps {
-  guidance: LiveCallMinaGuidanceContent;
+  guidance: LegacyLiveCallMinaGuidanceContent;
 }
 
 const RISK_LABELS = {
